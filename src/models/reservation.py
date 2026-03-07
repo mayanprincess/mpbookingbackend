@@ -32,7 +32,8 @@ class Reservation(Base):
     createdAt: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     reservationId: Mapped[str] = mapped_column(String(255), default = '')
     confirmationNumber: Mapped[str] = mapped_column(String(255), default = '')
-
+    PaymentTokenReference: Mapped[str] = mapped_column(String(255), default = '')
+    PaymentId: Mapped[str] = mapped_column(String(255), default = '')
 
     @property
     def guest(self) -> dict:

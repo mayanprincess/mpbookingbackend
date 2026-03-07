@@ -15,6 +15,9 @@ class BaseRepository(Generic[T]):
         self.db.add(entity)
         return entity
 
+    def update(self, entity: T) -> T:
+        return self.db.merge(entity)
+
     def add_all(self, entities: Iterable[T]) -> list[T]:
         entities = list(entities)
         self.db.add_all(entities)

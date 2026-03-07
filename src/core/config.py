@@ -17,12 +17,11 @@ class Settings(BaseSettings):
     opera_hotel_id: str = Field(..., env="OPERA_HOTEL_ID")
     opera_scope: str = Field(..., env="OPERA_SCOPE")
     queue_connection: str = Field(..., env="QUEUE_CONNECTION")
-    ptranz_currency: str = Field(..., env="PTRANZ_CURRENCY")
-    ptranz_base_url: str = Field(..., env="PTRANZ_BASE_URL")
-    ptranz_id: str = Field(..., env="PTRANZ_ID")
-    ptranz_password: str = Field(..., env="PTRANZ_PASSWORD")
+    merchant_id: str = Field(..., env="MERCHANT_ID")
+    merchant_key_id: str = Field(..., env="MERCHANT_KEY_ID")
+    merchant_secret_key: str = Field(..., env="MERCHANT_SECRET_KEY")
+    cybersource_base_url: str = Field(..., env="CYBERSOURCE_BASE_URL")
     base_frontend_url: str = Field(..., env="BASE_FRONTEND_URL")
-    base_api_url: str = Field(..., env="BASE_API_URL")
 
     class Config:
         env_file = ".env"
