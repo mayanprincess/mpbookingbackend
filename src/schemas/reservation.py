@@ -10,6 +10,12 @@ class Payment(BaseModel):
   expiryMonth: int
   expiryYear: int
 
+class ReservationResponse(BaseModel):
+  Status: bool
+  Message: Optional[str] = ''
+  reservationId: Optional[str] = None
+  confirmationNumber: Optional[str] = None
+
 
 class ReservationCreate(BaseModel):
     checkIn: str
@@ -23,11 +29,6 @@ class ReservationCreate(BaseModel):
     specialRequests: Optional[str] = None
     guest: GuestCreate
     payment: Optional[Payment] = None
-
-class ReservationResponse(BaseModel):
-    id: str
-    reservationId: Optional[str] = None
-    confirmationNumber: Optional[str] = None
 
 class Reservation(BaseModel):
     id: str
