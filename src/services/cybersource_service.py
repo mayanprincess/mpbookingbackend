@@ -7,7 +7,7 @@ from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
 import secrets
-import requests
+import httpx
 
 
 class CybersourceService:
@@ -128,9 +128,9 @@ class CybersourceService:
       "User-Agent": "Sale-API-Client/1.0",
     }
 
-    response = requests.post(
+    response = httpx.post(
         url,
-        data=payload_str,
+        content=payload_str,
         headers=headers,
         timeout=30,
     )
