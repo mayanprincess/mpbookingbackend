@@ -10,7 +10,7 @@ router = APIRouter(prefix="/reservations", tags=["Reservations"])
 def get_reservation_service(db: Session = Depends(get_db)) -> ReservationService:
     return ReservationService(db)
 
-@router.post("/")
+@router.post("")
 async def create_reservation(reservation: ReservationCreate, service: ReservationService = Depends(get_reservation_service)):
   response = await service.create_reservation(reservation)
   return response
