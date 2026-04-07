@@ -1,13 +1,18 @@
-from src.core.config import Settings
-import hashlib
 import base64
+import hashlib
 import hmac
 import json
+import logging
 from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
-import secrets
+
 import httpx
+
+from src.core.config import Settings
+from src.core.exceptions import CybersourceCaptureContextError
+
+logger = logging.getLogger(__name__)
 
 
 class CybersourceService:
@@ -138,6 +143,9 @@ class CybersourceService:
     if response.status_code == 201:
         jwt_token = response.text.strip()
         return jwt_token
-    else:
-        print("Error:", response.text)
-        return response.status_code, None, response.text
+    logger.error(
+        "CyberSource capture-context failed status=%s body=%s",
+        response.status_code,
+        response.text,
+    )
+    raise CybersourceCaptureContextError(response.status_code, response.text)

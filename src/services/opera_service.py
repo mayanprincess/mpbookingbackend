@@ -1,9 +1,15 @@
+import base64
+import logging
+import re
+
+import httpx
+
+from src.core.config import Settings
 from src.schemas.opera import OperaReservationResponse
 from src.schemas.reservation import ReservationCreate
-from src.core.config import Settings
-import base64
-import httpx
-import re
+
+logger = logging.getLogger(__name__)
+
 
 class OperaService:
     def __init__(self, config: Settings):
@@ -29,6 +35,11 @@ class OperaService:
         response = await client.post(self.config.opera_gateway_url + '/oauth/v1/tokens', headers=headers, data=data)
       
       if response.status_code != 200:
+        logger.error(
+            "Opera OAuth token failed status=%s body=%s",
+            response.status_code,
+            response.text,
+        )
         raise Exception(f'Failed to get access token: {response.status_code} {response.text}')
 
       data = response.json()
@@ -233,4 +244,9 @@ class OperaService:
         return OperaReservationResponse(reservationId=reservation_id, confirmationNumber=confirmation_number)
         
       except httpx.HTTPStatusError as e:
+        logger.error(
+            "Opera create reservation HTTP error: %s response=%s",
+            e,
+            e.response.text if e.response else "",
+        )
         raise Exception(f'Failed to create reservation: {e}')

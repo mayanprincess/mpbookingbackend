@@ -1,12 +1,17 @@
+import logging
+
 from sqlalchemy.orm import Session
-from src.services.cybersource_service import CybersourceService
+
+from src.core.exceptions import CybersourceCaptureContextError
 from src.schemas.payment import CybersourceSaleResponse
+from src.services.cybersource_service import CybersourceService
 from src.repositories.reservation_repository import ReservationRepository
 from src.schemas.reservation import ReservationCreate, ReservationResponse
 from src.services.opera_service import OperaService
 from src.core.config import settings
 from src.models.reservation import Reservation
 
+logger = logging.getLogger(__name__)
 
 
 class ReservationService:
@@ -39,9 +44,24 @@ class ReservationService:
       )
 
       new_reservation = self.repository.add(reservation_model)
+      self.db.flush()
+      self.db.refresh(new_reservation)
+      logger.info(
+          "Reservation persisted id=%s amount=%s",
+          new_reservation.id,
+          reservation_model.amountBeforeTax,
+      )
+      try:
+        token = self.cybersource_service.create_sale_request(
+            new_reservation.amountBeforeTax,
+            new_reservation.id,
+        )
+      except CybersourceCaptureContextError:
+        self.db.rollback()
+        raise
+
       self.db.commit()
       self.db.refresh(new_reservation)
-      token = self.cybersource_service.create_sale_request(reservation_model.amountBeforeTax, reservation_model.id)
 
       return CybersourceSaleResponse(
         Status=True,

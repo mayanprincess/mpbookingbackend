@@ -1,4 +1,7 @@
+import logging
+
 from sqlalchemy.orm import Session
+
 from src.schemas.guest import GuestCreate
 from src.schemas.reservation import ReservationCreate, ReservationResponse
 from src.services.cybersource_service import CybersourceService
@@ -6,6 +9,9 @@ from src.schemas.payment import CybersourceConfirmPaymentRequest, CybersourceVal
 from src.repositories.reservation_repository import ReservationRepository
 from src.services.opera_service import OperaService
 from src.core.config import settings
+
+logger = logging.getLogger(__name__)
+
 
 class PaymentService:
   def __init__(self, db: Session):
@@ -45,6 +51,13 @@ class PaymentService:
     self.repository.update(reservation)
     self.db.commit()
     self.db.refresh(reservation)
+
+    logger.info(
+        "Payment confirmed reservation_id=%s opera_id=%s confirmation=%s",
+        model.ReservationId,
+        reservation.reservationId,
+        reservation.confirmationNumber,
+    )
 
     return ReservationResponse(
       Status=True,

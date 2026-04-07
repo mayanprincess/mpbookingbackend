@@ -1,6 +1,7 @@
-from math import fabs
+from urllib.parse import urlparse
+
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
-from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -22,6 +23,26 @@ class Settings(BaseSettings):
     merchant_secret_key: str = Field(..., env="MERCHANT_SECRET_KEY")
     cybersource_base_url: str = Field(..., env="CYBERSOURCE_BASE_URL")
     base_frontend_url: str = Field(..., env="BASE_FRONTEND_URL")
+
+    @field_validator("base_frontend_url", mode="before")
+    @classmethod
+    def normalize_base_frontend_url(cls, v: object) -> str:
+        if v is None or (isinstance(v, str) and not v.strip()):
+            raise ValueError(
+                "BASE_FRONTEND_URL must be set to the public frontend URL "
+                "(e.g. https://reservas.tudominio.com)",
+            )
+        s = str(v).strip()
+        if not s.startswith(("http://", "https://")):
+            s = f"https://{s.lstrip('/')}"
+        s = s.rstrip("/")
+        parsed = urlparse(s)
+        if not parsed.netloc:
+            raise ValueError(
+                "BASE_FRONTEND_URL must be a valid URL with host "
+                "(CyberSource targetOrigins rejects invalid values)",
+            )
+        return s
 
     class Config:
         env_file = ".env"
