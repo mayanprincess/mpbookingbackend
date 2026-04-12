@@ -5,13 +5,28 @@ from sqlalchemy import pool
 
 from alembic import context
 
+import os
 import sys
 from pathlib import Path
+from urllib.parse import quote_plus
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]  # sube: migrations -> app -> project root
 sys.path.append(str(PROJECT_ROOT))
 
-from src.core.config import settings
+
+def _database_url_from_env() -> str:
+    """
+    Solo variables de MySQL — no importa Settings completo para que
+    `alembic upgrade` funcione sin JWT_SECRET_KEY ni otras claves de app.
+    """
+    user = quote_plus(os.environ["DATABASE_USER"])
+    password = quote_plus(os.environ["DATABASE_PASSWORD"])
+    host = os.environ["DATABASE_HOST"]
+    port = os.environ["DATABASE_PORT"]
+    name = os.environ["DATABASE_NAME"]
+    return f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}"
+
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -67,7 +82,7 @@ def run_migrations_online() -> None:
 
     """
     config_section = config.get_section(config.config_ini_section)
-    config_section["sqlalchemy.url"] = f"mysql+pymysql://{settings.database_user}:{settings.database_password}@{settings.database_host}:{settings.database_port}/{settings.database_name}"
+    config_section["sqlalchemy.url"] = _database_url_from_env()
 
     connectable = engine_from_config(
         config_section,
