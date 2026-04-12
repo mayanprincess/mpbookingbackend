@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Body, Depends, Request, Response
 from sqlalchemy.orm import Session
 
 from src.core.deps import get_current_user
@@ -22,20 +22,20 @@ def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
 @limiter.limit("10/minute")
 async def register(
     request: Request,
-    body: RegisterRequest,
+    payload: RegisterRequest = Body(...),
     service: AuthService = Depends(get_auth_service),
 ) -> AuthResponse:
-    return service.register(body)
+    return service.register(payload)
 
 
 @router.post("/login", response_model=AuthResponse)
 @limiter.limit("20/minute")
 async def login(
     request: Request,
-    body: LoginRequest,
+    payload: LoginRequest = Body(...),
     service: AuthService = Depends(get_auth_service),
 ) -> AuthResponse:
-    return service.login(body)
+    return service.login(payload)
 
 
 @router.get("/me", response_model=PortalUser)

@@ -5,6 +5,7 @@ from src.core.logging_config import configure_logging
 configure_logging()
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
@@ -12,6 +13,7 @@ from slowapi.errors import RateLimitExceeded
 
 from src.core.exceptions import CybersourceCaptureContextError
 from src.core.limiter import limiter
+from src.core.validation_handlers import request_validation_exception_handler
 from src.middleware.normalize_path import NormalizePathMiddleware
 from src.middleware.request_context import RequestContextMiddleware
 from src.routes.auth import router as auth_router
@@ -26,6 +28,7 @@ app = FastAPI(
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RequestValidationError, request_validation_exception_handler)
 
 
 @app.exception_handler(CybersourceCaptureContextError)

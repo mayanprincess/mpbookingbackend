@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 from sqlalchemy.orm import Session
 
 from src.core.deps import get_current_user
@@ -18,8 +18,8 @@ def get_user_service(db: Session = Depends(get_db)) -> UserService:
 
 @router.patch("/me", response_model=PortalUser)
 async def patch_me(
-    body: UpdateProfileRequest,
+    payload: UpdateProfileRequest = Body(...),
     current_user: User = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ) -> PortalUser:
-    return service.update_profile(current_user, body)
+    return service.update_profile(current_user, payload)
