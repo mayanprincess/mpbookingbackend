@@ -2,14 +2,15 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from src.core.exceptions import CybersourceCaptureContextError
-from src.schemas.payment import CybersourceSaleResponse
-from src.services.cybersource_service import CybersourceService
-from src.repositories.reservation_repository import ReservationRepository
-from src.schemas.reservation import ReservationCreate, ReservationResponse
-from src.services.opera_service import OperaService
 from src.core.config import settings
+from src.core.exceptions import CybersourceCaptureContextError
 from src.models.reservation import Reservation
+from src.models.user import User
+from src.repositories.reservation_repository import ReservationRepository
+from src.schemas.payment import CybersourceSaleResponse
+from src.schemas.reservation import ReservationCreate, ReservationResponse
+from src.services.cybersource_service import CybersourceService
+from src.services.opera_service import OperaService
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +24,22 @@ class ReservationService:
       self.opera_service = OperaService(settings)
 
         
-    async def create_reservation(self, reservation: ReservationCreate) -> CybersourceSaleResponse:
-      return await self._create_reservation_model(reservation)
+    async def create_reservation(
+        self,
+        reservation: ReservationCreate,
+        *,
+        current_user: User | None = None,
+    ) -> CybersourceSaleResponse:
+      return await self._create_reservation_model(reservation, current_user=current_user)
 
-    async def _create_reservation_model(self, reservation_data: ReservationCreate) -> CybersourceSaleResponse:
+    async def _create_reservation_model(
+        self,
+        reservation_data: ReservationCreate,
+        *,
+        current_user: User | None = None,
+    ) -> CybersourceSaleResponse:
       reservation_model = Reservation(
+        user_id=current_user.id if current_user else None,
         checkIn=reservation_data.checkIn,
         checkOut=reservation_data.checkOut,
         roomTypeCode=reservation_data.roomTypeCode,

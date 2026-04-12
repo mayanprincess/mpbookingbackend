@@ -1,7 +1,6 @@
-from typing import Any
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, BINARY
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
 from src.db.base import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from uuid6 import uuid7
 from datetime import datetime
 

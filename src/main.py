@@ -7,16 +7,16 @@ configure_logging()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from src.core.exceptions import CybersourceCaptureContextError
+from src.core.limiter import limiter
 from src.middleware.normalize_path import NormalizePathMiddleware
 from src.middleware.request_context import RequestContextMiddleware
-from src.routes.payment import router as payment_router
-from src.routes.reservation import router as reservation_router
-
-from src.routes.reservation import router as reservation_router
-from src.routes.payment import router as payment_router
 from src.routes.auth import router as auth_router
+from src.routes.payment import router as payment_router
+from src.routes.reservation import router as reservation_router
 from src.routes.user import router as user_router
 
 app = FastAPI(
@@ -24,6 +24,8 @@ app = FastAPI(
     version="2.0.0",
     description="Hotel booking API with user portal and loyalty system",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 @app.exception_handler(CybersourceCaptureContextError)
@@ -43,6 +45,7 @@ async def cybersource_capture_context_handler(
             "upstream": upstream,
         },
     )
+
 
 # CORS primero; RequestContext después queda más externo y corre primero (request ID en toda la petición).
 app.add_middleware(

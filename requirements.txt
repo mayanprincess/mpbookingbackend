@@ -9,6 +9,7 @@ httpx==0.28.1
 uuid6==2024.7.10
 cryptography==44.0.0
 python-multipart==0.0.20
+slowapi==0.1.9
 
 # Auth
 passlib[bcrypt]==1.7.4
