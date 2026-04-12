@@ -127,7 +127,8 @@ El **email** no se modifica por este endpoint (solo lectura en portal; cambio de
 
 ## Reservas y usuario
 
-- `POST /reservations` con header `Authorization: Bearer …` asocia la reserva al `user_id` del token.
+- **`POST /reservations`** con header **`Authorization: Bearer <token>`** guarda **`user_id`** en la fila de la reserva. Si el front no envía el token, la reserva queda como huésped anónimo (`user_id` null) y **no aparecerá** en “mis reservas”.
+- **`GET /reservations/mine`** — lista las reservas del usuario logueado (mismo header `Authorization: Bearer`). Query opcional: `limit` (1–100, default 50). Respuesta: array de objetos con fechas, huésped, `isPaid`, `confirmationNumber`, etc.
 - Tras pago confirmado (`POST /payment/confirm-payment`), si la reserva tenía `user_id`, se incrementa `reservation_count`. Si `LOYALTY_ENABLED=true`, se suman puntos según `POINTS_PER_DOLLAR` y se recalcula `membership_tier`.
 
 ---

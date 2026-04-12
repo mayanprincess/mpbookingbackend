@@ -85,3 +85,6 @@ class ReservationService:
     def get_reservation(self, reservation_id: str):
       response= self.repository.get(reservation_id)
       return response
+
+    def list_for_user(self, user_id: str, *, limit: int = 50):
+        return self.repository.list_by_user_id(user_id, limit=limit)

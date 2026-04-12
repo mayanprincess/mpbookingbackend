@@ -1,12 +1,10 @@
-from __future__ import annotations
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from src.core.deps import get_current_user_optional
+from src.core.deps import get_current_user, get_current_user_optional
 from src.db.session import get_db
 from src.models.user import User
-from src.schemas.reservation import ReservationCreate
+from src.schemas.reservation import ReservationCreate, ReservationOut
 from src.services.reservation_service import ReservationService
 
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
@@ -14,6 +12,16 @@ router = APIRouter(prefix="/reservations", tags=["Reservations"])
 
 def get_reservation_service(db: Session = Depends(get_db)) -> ReservationService:
     return ReservationService(db)
+
+
+@router.get("/mine", response_model=list[ReservationOut])
+def list_my_reservations(
+    current_user: User = Depends(get_current_user),
+    service: ReservationService = Depends(get_reservation_service),
+    limit: int = Query(50, ge=1, le=100),
+):
+    """Reservas del usuario autenticado (requiere `Authorization: Bearer`)."""
+    return service.list_for_user(current_user.id, limit=limit)
 
 
 @router.post("")
