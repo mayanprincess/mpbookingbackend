@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from src.schemas.phone_country import CountryCode, normalize_phone
 
@@ -28,13 +36,32 @@ class PortalUser(BaseModel):
 
 
 class RegisterRequest(BaseModel):
+    """Acepta JSON en snake_case o camelCase (frontends JS / SvelteKit)."""
+
+    model_config = ConfigDict(extra="ignore")
+
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=72)
-    first_name: str = Field(..., min_length=1, max_length=255)
-    last_name: str = Field(..., min_length=1, max_length=255)
+    first_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        validation_alias=AliasChoices("first_name", "firstName"),
+    )
+    last_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        validation_alias=AliasChoices("last_name", "lastName"),
+    )
     country: CountryCode
     phone: str = Field(..., min_length=1, max_length=64)
-    national_id: str = Field(..., min_length=3, max_length=128)
+    national_id: str = Field(
+        ...,
+        min_length=3,
+        max_length=128,
+        validation_alias=AliasChoices("national_id", "nationalId"),
+    )
 
     @field_validator("email", mode="before")
     @classmethod
@@ -58,7 +85,9 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    model_config = ConfigDict(extra="ignore")
+
+    email: EmailStr = Field(validation_alias=AliasChoices("email", "username"))
     password: str = Field(..., min_length=1, max_length=72)
 
     @field_validator("email", mode="before")
@@ -70,11 +99,28 @@ class LoginRequest(BaseModel):
 
 
 class UpdateProfileRequest(BaseModel):
-    first_name: str | None = Field(None, min_length=1, max_length=255)
-    last_name: str | None = Field(None, min_length=1, max_length=255)
+    model_config = ConfigDict(extra="ignore")
+
+    first_name: str | None = Field(
+        None,
+        min_length=1,
+        max_length=255,
+        validation_alias=AliasChoices("first_name", "firstName"),
+    )
+    last_name: str | None = Field(
+        None,
+        min_length=1,
+        max_length=255,
+        validation_alias=AliasChoices("last_name", "lastName"),
+    )
     country: CountryCode | None = None
     phone: str | None = Field(None, min_length=1, max_length=64)
-    national_id: str | None = Field(None, min_length=3, max_length=128)
+    national_id: str | None = Field(
+        None,
+        min_length=3,
+        max_length=128,
+        validation_alias=AliasChoices("national_id", "nationalId"),
+    )
 
     @field_validator("first_name", "last_name", "national_id")
     @classmethod

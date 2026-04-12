@@ -1,6 +1,6 @@
 # API del portal de usuario (MP Booking)
 
-Convención: **JSON en `snake_case`**. Rutas **sin** prefijo `/api/v1` (mismo estilo que `/reservations` y `/payment`). El OpenAPI en `/docs` refleja los mismos paths.
+Convención: **JSON** puede enviarse en **`snake_case` o `camelCase`** en login/register/patch (el backend acepta ambos, p. ej. `first_name` o `firstName`). Rutas **sin** prefijo `/api/v1` (mismo estilo que `/reservations` y `/payment`). El OpenAPI en `/docs` refleja los mismos paths.
 
 ## Autenticación
 
