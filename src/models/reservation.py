@@ -1,18 +1,26 @@
 from typing import Any
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, Integer, String, BINARY
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, BINARY
 from src.db.base import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from uuid6 import uuid7
 from datetime import datetime
 
 
 class Reservation(Base):
     __tablename__ = "reservations"
-    
+
     id: Mapped[str] = mapped_column(
         String(36),
         primary_key=True,
         default=lambda: str(uuid7())
+    )
+
+    # Link to registered user (nullable - guests can still book without account)
+    user_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True
     )
 
     checkIn: Mapped[str] = mapped_column(String(255))

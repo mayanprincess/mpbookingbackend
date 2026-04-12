@@ -14,7 +14,16 @@ from src.middleware.request_context import RequestContextMiddleware
 from src.routes.payment import router as payment_router
 from src.routes.reservation import router as reservation_router
 
-app = FastAPI()
+from src.routes.reservation import router as reservation_router
+from src.routes.payment import router as payment_router
+from src.routes.auth import router as auth_router
+from src.routes.user import router as user_router
+
+app = FastAPI(
+    title="MP Booking API",
+    version="2.0.0",
+    description="Hotel booking API with user portal and loyalty system",
+)
 
 
 @app.exception_handler(CybersourceCaptureContextError)
@@ -47,5 +56,15 @@ app.add_middleware(RequestContextMiddleware)
 # Último en registrarse = más externo: normaliza //ruta antes de routing/CORS/request-id.
 app.add_middleware(NormalizePathMiddleware)
 
+# Core booking
 app.include_router(reservation_router)
 app.include_router(payment_router)
+
+# User portal
+app.include_router(auth_router)
+app.include_router(user_router)
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "version": "2.0.0"}
