@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from fastapi import APIRouter, Body, Depends, Request, Response
 from sqlalchemy.orm import Session
 
