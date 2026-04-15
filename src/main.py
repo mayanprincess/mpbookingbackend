@@ -4,10 +4,13 @@ from src.core.logging_config import configure_logging
 
 configure_logging()
 
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -61,6 +64,13 @@ app.add_middleware(
 app.add_middleware(RequestContextMiddleware)
 # Último en registrarse = más externo: normaliza //ruta antes de routing/CORS/request-id.
 app.add_middleware(NormalizePathMiddleware)
+
+_static_dir = Path(__file__).resolve().parent.parent / "static"
+app.mount(
+    "/static",
+    StaticFiles(directory=str(_static_dir)),
+    name="static",
+)
 
 # Core booking
 app.include_router(reservation_router)
