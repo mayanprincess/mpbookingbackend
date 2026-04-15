@@ -250,3 +250,29 @@ class OperaService:
             e.response.text if e.response else "",
         )
         raise Exception(f'Failed to create reservation: {e}')
+
+    async def get_reservation_by_confirmation_number(self, confirmation_number: str):
+      access_token = await self._get_access_token()
+      headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-enterpriseid': self.config.opera_enterprise_id,
+        'x-hotelid': self.config.opera_hotel_id,
+        'x-app-key': self.config.opera_app_key,
+      }
+      url = f'{self.config.opera_gateway_url}/rsv/v1/hotels/{self.config.opera_hotel_id}/reservations?confirmationNumberList=${confirmation_number}`'
+      async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+
+      try:
+        response.raise_for_status()
+        dataResponse = response.json()
+        return dataResponse
+      except httpx.HTTPStatusError as e:
+        logger.error(
+          "Opera get reservation by confirmation number HTTP error: %s response=%s",
+          e,
+          e.response.text if e.response else "",
+        )
+        raise Exception(f'Failed to get reservation by confirmation number: {e}')

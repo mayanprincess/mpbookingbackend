@@ -31,39 +31,27 @@ class Settings(BaseSettings):
     # Frontend
     base_frontend_url: str = Field(..., env="BASE_FRONTEND_URL")
 
-    @field_validator("base_frontend_url", mode="before")
-    @classmethod
-    def normalize_base_frontend_url(cls, v: object) -> str:
-        if v is None or (isinstance(v, str) and not v.strip()):
-            raise ValueError(
-                "BASE_FRONTEND_URL must be set to the public frontend URL "
-                "(e.g. https://reservas.tudominio.com)",
-            )
-        s = str(v).strip()
-        if not s.startswith(("http://", "https://")):
-            s = f"https://{s.lstrip('/')}"
-        s = s.rstrip("/")
-        parsed = urlparse(s)
-        if not parsed.netloc:
-            raise ValueError(
-                "BASE_FRONTEND_URL must be a valid URL with host "
-                "(CyberSource targetOrigins rejects invalid values)",
-            )
-        return s
+    # Brevo (Sendinblue) transactional email
+    brevo_url: str = Field(..., env="BREVO_URL")
+    brevo_api_key: str = Field(..., env="BREVO_API_KEY")
+    brevo_sender_name: str = Field(..., env="BREVO_SENDER_NAME")
+    brevo_sender_email: str = Field(..., env="BREVO_SENDER_EMAIL")
+    email_logo_cdn_url: str = Field(..., env="EMAIL_LOGO_CDN_URL")
 
     # JWT Auth
-    jwt_secret_key: str = Field(..., env="JWT_SECRET_KEY")
-    jwt_algorithm: str = Field(default="HS256", env="JWT_ALGORITHM")
-    jwt_access_token_expire_minutes: int = Field(default=60, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
-    jwt_refresh_token_expire_days: int = Field(default=30, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS")
+    # jwt_secret_key: str = Field(..., env="JWT_SECRET_KEY")
+    # jwt_algorithm: str = Field(default="HS256", env="JWT_ALGORITHM")
+    # jwt_access_token_expire_minutes: int = Field(default=60, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
+    # jwt_refresh_token_expire_days: int = Field(default=30, env="JWT_REFRESH_TOKEN_EXPIRE_DAYS")
+
 
     # Email
-    smtp_host: str = Field(default="sandbox.smtp.mailtrap.io", env="SMTP_HOST")
-    smtp_port: int = Field(default=587, env="SMTP_PORT")
-    smtp_user: str = Field(default="", env="SMTP_USER")
-    smtp_password: str = Field(default="", env="SMTP_PASSWORD")
-    emails_from_email: str = Field(default="noreply@mpbooking.com", env="EMAILS_FROM_EMAIL")
-    emails_from_name: str = Field(default="MP Booking", env="EMAILS_FROM_NAME")
+    #smtp_host: str = Field(default="sandbox.smtp.mailtrap.io", env="SMTP_HOST")
+    #smtp_port: int = Field(default=587, env="SMTP_PORT")
+    #smtp_user: str = Field(default="", env="SMTP_USER")
+    #smtp_password: str = Field(default="", env="SMTP_PASSWORD")
+    #emails_from_email: str = Field(default="noreply@mpbooking.com", env="EMAILS_FROM_EMAIL")
+    #emails_from_name: str = Field(default="MP Booking", env="EMAILS_FROM_NAME")
 
     # Loyalty (feature-flagged — set LOYALTY_ENABLED=True when ready to launch)
     loyalty_enabled: bool = Field(default=False, env="LOYALTY_ENABLED")
