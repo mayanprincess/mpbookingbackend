@@ -83,4 +83,24 @@ app.include_router(user_router)
 
 @app.get("/health")
 def health_check():
+    """Liveness probe — returns 200 as long as the process is running."""
     return {"status": "ok", "version": "2.0.0"}
+
+
+@app.get("/health/ready")
+def readiness_check():
+    """Readiness probe — verifies DB connectivity. Returns 503 if DB unreachable."""
+    from sqlalchemy import text
+    from src.db.session import SessionLocal
+
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "version": "2.0.0", "db": "ok"}
+    except Exception as exc:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "error", "version": "2.0.0", "db": "unreachable", "detail": str(exc)},
+        )
+    finally:
+        db.close()
